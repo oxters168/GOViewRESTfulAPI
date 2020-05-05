@@ -1,0 +1,27 @@
+{
+  "name": "goviewrestfulapi",
+  "version": "1.0.0",
+  "description": "A Node.js RESTful API for GOView",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oxters168/GOViewRESTfulAPI.git"
+  },
+  "keywords": [
+    "node",
+    "restful",
+    "api"
+  ],
+  "author": "Oxters",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/oxters168/GOViewRESTfulAPI/issues"
+  },
+  "homepage": "https://github.com/oxters168/GOViewRESTfulAPI#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
