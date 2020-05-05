@@ -20,7 +20,7 @@ csgo.on("connectedToGC", () => {
     console.log("Connected to GC!");
 });
 
-router.get('/', (req, res, next) => {
+router.get('/RequestGame', (req, res, next) => {
     const match = {
         matchId: req.query['matchId'],
         outcomeId: req.query['outcomeId'],
