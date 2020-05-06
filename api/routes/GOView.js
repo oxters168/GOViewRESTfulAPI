@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
+
 require('dotenv').config();
+
+const { ShareCode } = require('globaloffensive-sharecode');
 
 const SteamUser = require('steam-user');
 const GlobalOffensive = require('@yaroslav-95/globaloffensive');
@@ -11,25 +14,52 @@ let csgo = new GlobalOffensive(user);
 //Log in our steam user when server starts
 SteamLoginWithEnv();
 
+const requestGame = (match) => new Promise((resolve, reject) => {
+    console.log("Requesting game details");
+    csgo.requestGame(match.matchId, match.outcomeId, match.token);
+    csgo.on('matchList', (matches, data) =>
+    {
+        returnedMatches = matches;
+        returnedData = data;
+        resolve({ matches, data });
+    });
+    user.on('error', (err) => {
+        reject(err);
+    });
+});
+
 router.get('/RequestGame', (req, res, next) => {
-    const match = {
+    match = {
         matchId: req.query['matchId'],
         outcomeId: req.query['outcomeId'],
         token: req.query['token']
     }
+    const sharecode = req.query['sharecode'];
+    if (!(sharecode == null)) {
+        match = new ShareCode(sharecode).decode();
+    }
     
     if (csgo._isInCSGO) {
-        res.status(200).json({
-            message: 'Requested match',
-            match: match
+        requestGame(match)
+        .then((result) => {
+            console.log(result);
+            res.status(200).json({
+                message: 'Received match data',
+                match: match,
+                matches: result.matches,
+                data: result.data
+            });
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).json({ error: err });
         });
     }
     else {
         SteamLoginWithEnv();
 
         const error = new Error("Could not send request at this time, please try again later. If issue persists, contact support.");
-        error.status = 500;
-        next(error);
+        res.status(500).json({ error: error });
     }
 });
 
@@ -45,7 +75,7 @@ function SteamLogin(username, password) {
     }
 }
 function SteamLoginWithEnv() {
-    SteamLogin(process.env.USERNAME || "", process.env.PASSWORD || "");
+    SteamLogin(process.env.STEAM_USERNAME || "", process.env.STEAM_PASSWORD || "");
 }
 
 //When steam user logs in, start CSGO
