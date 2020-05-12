@@ -6,7 +6,7 @@ require('dotenv').config();
 const { ShareCode } = require('globaloffensive-sharecode');
 
 const SteamUser = require('steam-user');
-const GlobalOffensive = require('@yaroslav-95/globaloffensive');
+const GlobalOffensive = require('@oxters168/globaloffensive');
 
 let user = new SteamUser();
 let csgo = new GlobalOffensive(user);
@@ -17,11 +17,9 @@ SteamLoginWithEnv();
 const requestGame = (match) => new Promise((resolve, reject) => {
     console.log("Requesting game details");
     csgo.requestGame(match.matchId, match.outcomeId, match.token);
-    csgo.on('matchList', (matches, data) =>
+    csgo.on('matchList', (body) =>
     {
-        returnedMatches = matches;
-        returnedData = data;
-        resolve({ matches, data });
+        resolve(body);
     });
     user.on('error', (err) => {
         reject(err);
@@ -43,12 +41,7 @@ router.get('/RequestGame', (req, res, next) => {
         requestGame(match)
         .then((result) => {
             console.log(result);
-            res.status(200).json({
-                message: 'Received match data',
-                match: match,
-                matches: result.matches,
-                data: result.data
-            });
+            res.status(200).send(result);
         })
         .catch((err) => {
             console.log(err);
